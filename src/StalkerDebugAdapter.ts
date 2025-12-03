@@ -154,6 +154,14 @@ export class StalkerDebugAdapter implements Disposable, DebugAdapter {
         if (e.id === this.debugSession.id || e.parentSession?.id === this.debugSession.id) {
             this.sendMessage.fire({ type: 'event', event: 'output', body: { category: 'console', output: `🪲 Debug session terminated: ${e.name} (${e.type})\n` } });
         }
+
+        if (e.parentSession?.id === this.debugSession.id && e.type === 'coreclr') {
+            this.childPid = 0;
+            if (!this.debuggerIsStopping) {
+                this.sendMessage.fire({ type: 'event', event: 'output', body: { category: 'console', output: `🔄 Child process debugger terminated. Resuming process monitoring.\n` } });
+                this.restartCheckProcessesTimeout(this.debugConfiguration.attachOptions.interval ?? (StalkerDebugAdapter.DefaultIntervalMs / 2));
+            }
+        }
     }
 
     private restartCheckProcessesTimeout(timeoutMs: number): void {
@@ -316,6 +324,7 @@ export class StalkerDebugAdapter implements Disposable, DebugAdapter {
                             }
                         }
                     }
+                    return;
                 }
                 else {
                     this.sendMessage.fire({ type: 'event', event: 'output', body: { category: 'console', output: '🚫 Failed to attach to child process. Stopping debugger.\n' } });
@@ -325,7 +334,8 @@ export class StalkerDebugAdapter implements Disposable, DebugAdapter {
                 }
             }
 
-            this.restartCheckProcessesTimeout(this.debugConfiguration.watchOptions.interval ?? StalkerDebugAdapter.DefaultIntervalMs); // (most likely) slows down the interval
+            // We are attached to the child process, so we stop polling.
+            // If the child process dies (e.g. due to a rebuild), handleOnDidTerminateDebugSession will restart the polling.
             return;
         }, timeoutMs);
     }
