@@ -30,7 +30,7 @@ export class EnvironmentUtil {
     }
 
     static processFileName(processFileName: string): string {
-        return this.platform === 'win32' ? processFileName + ".exe" : processFileName;
+        return this.platform === 'win32' ? processFileName.replace(/\.dll$/i, "") + ".exe" : processFileName;
     }
 }
 
