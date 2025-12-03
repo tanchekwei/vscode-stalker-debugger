@@ -339,7 +339,7 @@ export class StalkerDebugAdapter implements Disposable, DebugAdapter {
     private async startDotNetWatch(): Promise<void> {
         if (this.dotNetWatchTask) throw new Error('dotnet watch is already running'); // ! this should never happen
 
-        const dotNetWatchArgs = this.debugConfiguration.watchOptions.args && this.debugConfiguration.watchOptions.args.length > 0 ? ` ${this.debugConfiguration.watchOptions.args.map(a => `--property ${a}`).join(' ')}` : '';
+        const dotNetWatchArgs = this.debugConfiguration.watchOptions.args && this.debugConfiguration.watchOptions.args.length > 0 ? ` ${this.debugConfiguration.watchOptions.args.join(' ')}` : '';
         const childDotNetProcessArgs = this.debugConfiguration.processOptions.args && this.debugConfiguration.processOptions.args.length > 0 ? " -- " + this.debugConfiguration.processOptions.args.join(' ') : '';
 
         let profileArg = "--no-launch-profile";
