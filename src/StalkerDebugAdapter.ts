@@ -235,15 +235,19 @@ export class StalkerDebugAdapter implements Disposable, DebugAdapter {
 
                     const launchUrls = await this.getLaunchUrls();
 
+                    if (this.debugConfiguration.attachOptions.action && this.debugConfiguration.attachOptions.action !== "nothing" && launchUrls.length > 0 && this.debugConfiguration.attachOptions.action === "openExternally") {
+                        let url = launchUrls[0].replace("0.0.0.0", "localhost");
+                        let urlPath = this.debugConfiguration.attachOptions.urlPath?.trim().replace(/^\/+/, '');
+                        if (urlPath) url += `/${urlPath}`;
+                        this.sendMessage.fire({ type: 'event', event: 'output', body: { category: 'console', output: `🕸️ Opening URL externally (${url}).\n` } });
+                        await env.openExternal(Uri.parse(url));
+                    }
+
                     if (this.attachedIncrement === 1 && this.debugConfiguration.attachOptions.action && this.debugConfiguration.attachOptions.action !== "nothing" && launchUrls.length > 0) {
                         let url = launchUrls[0].replace("0.0.0.0", "localhost");
                         let urlPath = this.debugConfiguration.attachOptions.urlPath?.trim().replace(/^\/+/, '');
                         if (urlPath) url += `/${urlPath}`;
 
-                        if (this.debugConfiguration.attachOptions.action === "openExternally") {
-                            this.sendMessage.fire({ type: 'event', event: 'output', body: { category: 'console', output: `🕸️ Opening URL externally (${url}).\n` } });
-                            await env.openExternal(Uri.parse(url));
-                        }
                         else if (this.debugConfiguration.attachOptions.action === "debugWithChrome") {
                             this.sendMessage.fire({ type: 'event', event: 'output', body: { category: 'console', output: `🔍 Debugging with Google Chrome (${url}).\n` } });
 
