@@ -167,7 +167,7 @@ export class StalkerDebugAdapter implements Disposable, DebugAdapter {
         this.checkProcessesTimeout = setTimeout(async () => {
             const dotNetWatchProcessNameRegExp = new RegExp(`dotnet.* watch run .*--project "?${this.debugConfiguration.project.replaceAll("\\", "\\\\")}"?`, "i");
             const dotNetWatchProcesses = await findProcesses("name", dotNetWatchProcessNameRegExp);
-            const dotNetWatchProcess = dotNetWatchProcesses.length === 1 ? dotNetWatchProcesses[0] : undefined;
+            const dotNetWatchProcess = dotNetWatchProcesses.find(x => x.name.toLowerCase().startsWith("dotnet"));
 
             // if (dotNetWatchProcess) console.log(`dotnet watch command: ${dotNetWatchProcess.cmd}`);
             // else console.log("dotnet watch process not found");
